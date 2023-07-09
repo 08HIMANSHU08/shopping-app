@@ -36,6 +36,40 @@ class User{
     .updateOne({_id:new mongodb.ObjectId(this._id)},{$set:{cart:updatedCart}})
   }
 
+  getCart(){
+    const db = getDb();
+    console.log("***********************************",this.cart)
+    const productsIds = this.cart.map(i=>{
+      return i.productId;
+    });
+    console.log(productsIds,"cnegfwefrijwhegchjwhjegfyu")
+    return db
+    .collection('products')
+    .find({_id:{$in:productsIds}})
+    .toArray()
+    .then(products=>{
+      console.log("user get cart model",products)
+      return products.map(p=>{
+        return {
+          ...p,
+          quantity:this.cart.find(i=>{
+            return i.productId.toString()===p._id.toString();
+        }).quantity
+      };
+      });
+    });
+  }
+
+  deleteItemFromCart(productId){
+    const updatedCartItems = this.cart.filter(item=>{
+      return item.productId.toString() !== productId.toString()
+    });
+    console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@",updatedCartItems)
+    const db = getDb();
+    return db.collection('users')
+    .updateOne({_id:new mongodb.ObjectId(this._id)},{$set:{cart:updatedCartItems}})
+  }
+
   static findById(userId){
     const db = getDb();
     return db.collection('users')
@@ -48,5 +82,6 @@ class User{
       console.log(err);
     })
   }
+  
 }
 module.exports = User;
