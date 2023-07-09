@@ -45,10 +45,12 @@ exports.getIndex = (req, res, next) => {
 exports.getCart = (req, res, next) => {
   console.log("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$",req.user)
   req.user
-    .getCart()
-    .then(products => {
-      console.log("get cart",products)
-          res.render('shop/cart', {
+    .populate('cart.items.productId')
+    // .execPopulate()
+    .then(user => {
+      console.log("get cart",user.cart.items)
+      const products=user.cart.items;
+      res.render('shop/cart', {
             path: '/cart',
             pageTitle: 'Your Cart',
             products: products
